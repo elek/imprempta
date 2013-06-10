@@ -1,0 +1,14 @@
+buildscript {
+    repositories {
+        maven {
+            url uri('../repo')
+        }
+        mavenCentral()
+    }
+    dependencies {
+              classpath group: 'net.anzix.imprempta', name: 'gradle-plugin', version: '1.0-SNAPSHOT'
+    }
+}
+
+println project.buildscript.configurations.classpath.asPath
+task site(type: net.anzix.imprempta.gradle.SiteTask);

@@ -1,0 +1,23 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+
+dependencies {
+    compile project(':core')
+    compile gradleApi()
+    compile localGroovy();
+
+}
+
+task pl << { 
+  println project.configurations.compile.asPath
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
+

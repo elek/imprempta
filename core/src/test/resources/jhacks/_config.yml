@@ -1,0 +1,9 @@
+exclude: ['LICENSE.md', 'README.md', 'config.rb', 'sass']
+
+permalink: ':title/'
+
+baseurl: '/jhacks/'
+
+pygments: true
+
+markdown: redcarpet

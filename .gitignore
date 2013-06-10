@@ -1,3 +1,10 @@
+repo
+.idea
 build
 *~
 .gradle
+out
+*.iml
+*.iws
+*.ipr
+_site
