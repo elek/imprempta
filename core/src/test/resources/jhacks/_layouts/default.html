@@ -1,45 +1,50 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>JHacks</title>
 
-    <link rel="stylesheet" href="{{ site.baseurl }}stylesheets/styles.css">
-    <link rel="stylesheet" href="{{ site.baseurl }}stylesheets/pygment_trac.css">
-    <script src="{{ site.baseurl }}javascripts/scale.fix.js"></script>
+    <link rel="stylesheet" href="{{ page.rootUrl }}stylesheets/styles.css">
+    <link rel="stylesheet" href="{{ page.rootUrl }}stylesheets/pygment_trac.css">
+    <script src="{{ page.rootUrl }}javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <!-- 3 -->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
+</head>
+<body>
+<div class="wrapper">
+    <header>
         <h1 class="header">JHacks</h1>
+
         <p class="header">#java #wiki #hu [ARCHIVE_ONLY!]</p>
 
         <ul>
-          <li class="download"><a class="buttons" href="{{ site.baseurl }}index.html">Mi ez?</a></li>
-          <li class="download"><a class="buttons" href="{{ site.baseurl }}List.html">Oldalindex</a></li>
+            <li class="download"><a class="buttons" href="{{ site.baseurl }}index.html">Mi ez?</a></li>
+            <li class="download"><a class="buttons" href="{{ site.baseurl }}List.html">Oldalindex</a></li>
         </ul>
 
-        <p class="header">This archive is hosted on <a class="header name" href="https://github.com/elek/jhacks">github</a></p>
+        <p class="header">This archive is hosted on <a class="header name"
+                                                       href="https://github.com/elek/jhacks">github</a></p>
 
 
-      </header>
-      <section>
-	{{ content }}
-      </section>
-      <footer>
-        {% if page.date %}
-        <p><small>{{ page.date }}</small></p>
-        {% endif %}
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a></small></p>
-      </footer>
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
-  </body>
+    </header>
+    <section>
+        {{ content }}
+    </section>
+    <footer>
+        <p>
+            <small>{{ page.metadata.xxx }}</small>
+        </p>
+        <p>
+            <small>Hosted on <a href="https://pages.github.com">GitHub Pages</a></small>
+        </p>
+    </footer>
+</div>
+<!--[if !IE]>
+<script>fixScale(document);</script><![endif]-->
+
+</body>
 </html>

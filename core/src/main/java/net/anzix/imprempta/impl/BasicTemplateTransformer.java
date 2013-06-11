@@ -7,6 +7,7 @@ import net.anzix.imprempta.api.*;
  * Transformer for typical template engines with recursive layout resolution.
  */
 public abstract class BasicTemplateTransformer implements Transformer {
+
     @Inject
     Site site;
 
@@ -16,10 +17,8 @@ public abstract class BasicTemplateTransformer implements Transformer {
     }
 
     private void resolveLayout(TextContent content) {
-        System.out.println(content.getMeta(Header.NAME));
         content.setContent(transform(content, null));
         while (content.getMeta(Header.LAYOUT) != null) {
-            System.out.println("Source " + content.getSource().toAbsolutePath());
             String layoutName = (String) content.getMeta(Header.LAYOUT);
             Layout layout = site.getLayout(layoutName);
             if (layout == null) {

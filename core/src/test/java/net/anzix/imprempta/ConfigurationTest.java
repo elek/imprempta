@@ -18,9 +18,11 @@ public class ConfigurationTest {
 
         CompilerConfiguration conf = new CompilerConfiguration();
         conf.setVerbose(true);
+        conf.setScriptBaseClass("net.anzix.imprempta.impl.Valami");
 
-        GroovyShell shell = new GroovyShell(binding);
-        shell.evaluate("asd = 'qwe'");
+        GroovyShell shell = new GroovyShell(this.getClass().getClassLoader(), new Binding(), conf);
+        Object res = shell.evaluate("ahoj()");
+        System.out.println(res);
         for (Object o : shell.getContext().getVariables().keySet()) {
             System.out.println(o);
         }
@@ -29,4 +31,6 @@ public class ConfigurationTest {
     public String qwe() {
         return "a";
     }
+
+
 }

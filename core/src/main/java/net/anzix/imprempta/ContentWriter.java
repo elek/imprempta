@@ -17,8 +17,6 @@ public class ContentWriter {
 
     public void render(Content content, Path fromDir, Path destination) {
         try {
-            System.out.println(content.getMeta(Header.NAME));
-            System.out.println(content.getUrl());
             LOG.debug("Generating output to {}", destination);
             Files.createDirectories(destination.getParent());
             if (content instanceof TextContent) {

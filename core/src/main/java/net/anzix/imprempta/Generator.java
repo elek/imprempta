@@ -2,6 +2,8 @@ package net.anzix.imprempta;
 
 import com.google.inject.Inject;
 import net.anzix.imprempta.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -11,6 +13,7 @@ import java.util.Set;
 
 public class Generator {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Generator.class);
     /**
      * Source path.
      */
@@ -80,7 +83,14 @@ public class Generator {
         for (Transformer trafo : transformers) {
             for (Content c : site.getContents()) {
                 if (c instanceof TextContent) {
-                    trafo.transform((TextContent) c);
+                    try {
+                        trafo.transform((TextContent) c);
+                    } catch (Exception ex) {
+                        if (ex instanceof ContentGenerationException) {
+                            LOG.error("Error in " + ((ContentGenerationException) ex).getSource().getUrl(), ex);
+                        }
+                        throw ex;
+                    }
                 }
             }
         }

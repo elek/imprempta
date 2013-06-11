@@ -4,9 +4,9 @@ title: Oldalindex
 ---
 <h1>Oldalak</h1>
 <ul>
-{% for page in site.pages %}
-   <li><a href="{{ site.baseurl }}{{ page.url }}">{{ page.path }}</a></li>
-{% endfor %}   
+{{#each site.pages }}
+   <li><a href="{{ page.rootUrl }}{{ url }}">{{ metadata.name }}</a></li>
+{{/each}}
 </ul>
 
 

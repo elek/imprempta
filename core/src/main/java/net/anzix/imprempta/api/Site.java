@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Base class represents all the site data with the data.
+ */
 public class Site {
 
     private List<Content> contents = new ArrayList<Content>();

@@ -3,10 +3,7 @@ package net.anzix.imprempta.impl;
 import com.github.jknack.handlebars.*;
 import com.github.jknack.handlebars.helper.EachHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
-import net.anzix.imprempta.api.Content;
-import net.anzix.imprempta.api.GeneratorException;
-import net.anzix.imprempta.api.Header;
-import net.anzix.imprempta.api.TextContent;
+import net.anzix.imprempta.api.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,10 +22,16 @@ public class HandlebarsTransformer extends BasicTemplateTransformer {
         handlebars = handlebars.with(new MissingValueResolver() {
             @Override
             public String resolve(Object context, String var) {
-                throw new GeneratorException("Can't resolve variable " + var + " in " + context);
+                if (context instanceof HashMap && ((HashMap) context).get("page") instanceof Content) {
+                    Content content = (Content) ((HashMap) context).get("page");
+                    throw new ContentGenerationException("Can't resolve variable " + var, content);
+                } else {
+                    throw new GeneratorException("Can't resovle variable: " + var);
+                }
+
             }
         });
-        handlebars.registerHelper("each", new EachHelper());
+        //handlebars.registerHelper("each", new EachHelper());
         StringHelpers.dateFormat.registerHelper(handlebars);
         handlebars.registerHelper("created", new Helper<Content>() {
             @Override
@@ -63,8 +66,8 @@ public class HandlebarsTransformer extends BasicTemplateTransformer {
             }
 
             return template.apply(values);
-        } catch (IOException e) {
-            throw new GeneratorException("Can't render template with handlebars ", e);
+        } catch (Exception e) {
+            throw new ContentGenerationException("Can't render template with handlebars ", e, content);
         }
 
 
