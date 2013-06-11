@@ -6,7 +6,8 @@ install: ./gradlew assemble
 script: ./gradlew uploadArchive
 env:
   global:
-    secure: |-
+  - secure: |-
       dxwRSNJAlPYabsqo0tvmcVIona/jA8UOMbFb+bQo1a/f+e2FxByHjPI2Du7E
       pnQfykw5EsYa10wT6lt/1MPQD5bJC9vnH5eo3hAglKQT5WAHc0DXSJQmd6Rw
       YGzWrMNJTvG3n99hCJwu1bwdJnANaVRE6HduqCfLiQqJ/kU0o0U=
+

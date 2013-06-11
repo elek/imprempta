@@ -19,7 +19,7 @@ public class LegacyStarter {
 
     public static void main(String cp, String dir, String dest) throws Exception {
         List<URL> urls = new ArrayList<>();
-        for (String path : cp.split(";")) {
+        for (String path : cp.split(File.pathSeparator)) {
             if (!path.contains("asm") || !path.contains("3.1")) {
                 try {
                     File f = new File(path);

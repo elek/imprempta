@@ -19,7 +19,7 @@ allprojects {
   uploadArchives {
      repositories.mavenDeployer {
         def configureAuth = {
-            authentication(userName: 'anzix', password: 'xxx')
+            authentication(userName: 'anzix', password: repopwd)
         }
         configuration = configurations.deployerJars
         snapshotRepository(url: "dav:https://repository-anzix.forge.cloudbees.com/snapshot/", configureAuth)
