@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         maven {
-            url uri('../repo')
+            url uri('http://repository-anzix.forge.cloudbees.com/snapshot/')
         }
         mavenCentral()
     }

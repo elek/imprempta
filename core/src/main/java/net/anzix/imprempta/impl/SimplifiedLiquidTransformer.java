@@ -11,7 +11,11 @@ import net.anzix.imprempta.api.TextContent;
 public class SimplifiedLiquidTransformer extends BasicTemplateTransformer {
 
     protected String transform(TextContent layout, TextContent content) {
-        return layout.getContent().replaceAll("\\{\\{\\s*content\\s*\\}\\}", content.getContent());
+        if (content != null) {
+            return layout.getContent().replaceAll("\\{\\{\\s*content\\s*\\}\\}", content.getContent());
+        } else {
+            return layout.getContent();
+        }
     }
 
 }
