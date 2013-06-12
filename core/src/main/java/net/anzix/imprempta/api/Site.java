@@ -1,5 +1,9 @@
 package net.anzix.imprempta.api;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -17,6 +21,12 @@ public class Site {
 
     private SimpleDateFormat defaultDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
+    private String sourceDir;
+
+    @Inject
+    public Site(@Named("sourcedir") String sourceDir) {
+        this.sourceDir = sourceDir;
+    }
 
     public void addContent(Content content) {
         this.contents.add(content);
@@ -73,5 +83,13 @@ public class Site {
             return null;
         }
 
+    }
+
+    public String getSourceDir() {
+        return sourceDir;
+    }
+
+    public void setSourceDir(String sourceDir) {
+        this.sourceDir = sourceDir;
     }
 }

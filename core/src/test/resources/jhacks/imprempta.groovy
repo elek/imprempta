@@ -1,2 +1,2 @@
 
-binder.use(LastModifiedDate.class).after(PARSE)
+binder.use(LastModifiedDate.class).as(Transformer.class).after("parse")

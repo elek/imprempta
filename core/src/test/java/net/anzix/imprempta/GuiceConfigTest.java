@@ -12,11 +12,12 @@ public class GuiceConfigTest {
     @Test
     public void testUse() throws Exception {
         GuiceConfig c = new GuiceConfig(null);
-        c.transformations.add(new GuiceConfig.PhasedClass(NoTransformer.class, Phase.PARSE));
-        c.use(MyTrafo.class).after(Phase.PARSE);
-        Assert.assertEquals(2, c.transformations.size());
-        Assert.assertEquals(NoTransformer.class, c.transformations.get(0).type);
-        Assert.assertEquals(MyTrafo.class, c.transformations.get(1).type);
+        c.extensions.map(Transformer.class, new GuiceConfig.ClassWithRole(NoTransformer.class, Phase.PARSE));
+        c.use(MyTrafo.class).as(Transformer.class).after(Phase.PARSE);
+        Assert.assertEquals(1, c.extensions.size());
+        Assert.assertEquals(2, c.extensions.get(Transformer.class).size());
+        Assert.assertEquals(NoTransformer.class, c.extensions.get(Transformer.class).get(0).type);
+        Assert.assertEquals(MyTrafo.class, c.extensions.get(Transformer.class).get(1).type);
 
 
     }

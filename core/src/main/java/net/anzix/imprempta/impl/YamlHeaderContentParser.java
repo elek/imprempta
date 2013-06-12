@@ -8,9 +8,8 @@ import net.anzix.imprempta.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static java.nio.charset.Charset.forName;
 
@@ -21,22 +20,18 @@ import static java.nio.charset.Charset.forName;
  */
 public class YamlHeaderContentParser implements ContentParser {
 
-    private Set<String> textFiles = new HashSet<>();
-
     private Path rootDir;
+    private Map<String, Syntax> syntaxes;
+    private Site site;
 
     @Inject
-    public YamlHeaderContentParser(@Named("rootdir") String rootDir) {
-        this(Paths.get(rootDir));
+    public YamlHeaderContentParser(Map<String, Syntax> syntaxes, Site site) {
+        this(Paths.get(site.getSourceDir()));
+        this.syntaxes = syntaxes;
     }
 
     public YamlHeaderContentParser(Path rootDir) {
         this.rootDir = rootDir;
-        //TODO how to detect binary files???
-        textFiles.add("html");
-        textFiles.add("md");
-        textFiles.add("css");
-        textFiles.add("js");
     }
 
     @Override
@@ -47,7 +42,7 @@ public class YamlHeaderContentParser implements ContentParser {
             Layout c = new Layout();
             loadTextContent(file, c);
             return c;
-        } else if (textFiles.contains(ext.toLowerCase())) {
+        } else if (syntaxes.keySet().contains(ext.toLowerCase())) {
             TextContent c = new TextContent();
             loadTextContent(file, c);
             return c;

@@ -7,6 +7,6 @@ import java.lang.annotation.RetentionPolicy;
  * Tag the execution of a transformer with a named phase.
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Execute {
-    Phase value();
+public @interface Role {
+
 }

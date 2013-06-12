@@ -38,7 +38,7 @@ public class HandlebarsTransformerTest {
         Layout l = (Layout) parser.parse(Paths.get("src/test/resources/_layouts/handlebar_layout.html"));
         TextContent page = (TextContent) parser.parse(Paths.get("src/test/resources/post.html"));
 
-        Site s = new Site();
+        Site s = new Site(".");
         s.addLayout(l);
 
 
@@ -61,7 +61,7 @@ public class HandlebarsTransformerTest {
         Layout l = (Layout) parser.parse(Paths.get("src/test/resources/_layouts/handlebar_layout.html"));
         TextContent page = (TextContent) parser.parse(Paths.get("src/test/resources/post3.html"));
 
-        Site s = new Site();
+        Site s = new Site(".");
         s.addLayout(l);
 
 
@@ -84,7 +84,7 @@ public class HandlebarsTransformerTest {
         TextContent page = (TextContent) parser.parse(Paths.get("src/test/resources/post2.html"));
 
         Layout l;
-        Site s = new Site();
+        Site s = new Site(".");
         s.addLayout((Layout) parser.parse(Paths.get("src/test/resources/_layouts/handlebar_layout.html")));
         s.addLayout(l = (Layout) parser.parse(Paths.get("src/test/resources/_layouts/test.html")));
 
@@ -106,7 +106,7 @@ public class HandlebarsTransformerTest {
         TextContent page = (TextContent) parser.parse(Paths.get("src/test/resources/post4.html"));
 
         Layout l;
-        Site s = new Site();
+        Site s = new Site(".");
         s.addLayout((Layout) parser.parse(Paths.get("src/test/resources/_layouts/handlebar_layout.html")));
         s.addLayout(l = (Layout) parser.parse(Paths.get("src/test/resources/_layouts/test.html")));
         s.addContent(page);

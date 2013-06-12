@@ -1,37 +1,33 @@
 package net.anzix.imprempta;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import net.anzix.imprempta.api.*;
-import net.anzix.imprempta.impl.HandlebarsTransformer;
-import net.anzix.imprempta.impl.MarkdowTransformer;
-import net.anzix.imprempta.impl.NoTransformer;
-import net.anzix.imprempta.impl.YamlHeaderContentParser;
+import net.anzix.imprempta.impl.*;
+import org.antlr.v4.runtime.misc.MultiMap;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Scanner;
 
 /**
  * Guice component wiring.
  */
 public class GuiceConfig extends AbstractModule {
 
-    private String rootdir;
 
-    private Map<Class, List<Class>> extension = new HashMap();
+    String rootdir;
 
-    List<PhasedClass> transformations = new ArrayList<>();
+    MultiMap<Class, ClassWithRole> extensions = new MultiMap<>();
 
-    private Map<String, Class> namedComponents = new HashMap<>();
+    public GuiceConfig() {
+    }
 
     public GuiceConfig(String rootdir) {
         this.rootdir = rootdir;
@@ -39,34 +35,41 @@ public class GuiceConfig extends AbstractModule {
 
     @Override
     protected void configure() {
-        Logger l = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        l.setLevel(Level.INFO);
 
+        bind(String.class).annotatedWith(Names.named("sourcedir")).toInstance(rootdir);
         bind(Site.class).asEagerSingleton();
         bind(ContentWriter.class).asEagerSingleton();
         bind(ContentParser.class).to(YamlHeaderContentParser.class).asEagerSingleton();
 
-        transformations.add(new PhasedClass(NoTransformer.class, Phase.PARSE));
-        transformations.add(new PhasedClass(MarkdowTransformer.class, Phase.SYNTAX));
-        transformations.add(new PhasedClass(HandlebarsTransformer.class, Phase.TEMPLATE));
+        addExtension(Transformer.class, NoTransformer.class, Phase.PARSE);
+        addExtension(Transformer.class, SyntaxTransformer.class, Phase.SYNTAX);
+        addExtension(Transformer.class, HandlebarsTransformer.class, Phase.TEMPLATE);
 
-        bind(String.class).annotatedWith(Names.named("rootdir")).toInstance(rootdir);
+        addExtension(Syntax.class, MarkdownSyntax.class, "md");
+        addExtension(Syntax.class, MarkdownSyntax.class, "markdown");
+        addExtension(Syntax.class, SimpleSyntax.class, "js");
+        addExtension(Syntax.class, SimpleSyntax.class, "css");
+        addExtension(Syntax.class, SimpleSyntax.class, "html");
 
         readConfig();
 
-        Multibinder<Transformer> binder = Multibinder.newSetBinder(binder(), Transformer.class);
-        for (PhasedClass pc : transformations) {
-            binder.addBinding().to(pc.type);
+
+        for (Class iface : extensions.keySet()) {
+            MapBinder<String, Object> mapBinder = MapBinder.newMapBinder(binder(), String.class, iface);
+            Multibinder binder = Multibinder.newSetBinder(binder(), iface);
+            for (ClassWithRole impl : extensions.get(iface)) {
+                if (impl.role != null) {
+                    mapBinder.addBinding(impl.role).to(impl.type);
+                }
+                binder.addBinding().to(impl.type);
+            }
         }
+        bind(GuiceConfig.class).toInstance(this);
 
-//        for (Class iface : extension.keySet()) {
-//            Multibinder<Transformer> binder = Multibinder.newSetBinder(binder(), iface);
-//            for (Class impl : extension.get(iface)) {
-//                binder.addBinding().to(impl);
-//            }
-//        }
+    }
 
-
+    private <T> void addExtension(Class<T> iface, Class<? extends T> implementation, String parse) {
+        extensions.map(iface, new ClassWithRole(implementation, parse));
     }
 
     void readConfig() {
@@ -96,69 +99,61 @@ public class GuiceConfig extends AbstractModule {
         return new Usage(type);
     }
 
-    protected void addExtension(Class iface, String name, Class implementation) {
-        Class existingImpl = namedComponents.get(name);
-        if (existingImpl != null) {
-            for (Class ifp : extension.keySet()) {
-                List<Class> implementations = extension.get(ifp);
-                if (implementations.contains(existingImpl)) {
-                    implementations.remove(existingImpl);
-                }
-            }
-        }
-        namedComponents.put(name, implementation);
-        addExtension(iface, implementation);
 
-    }
+    public static class ClassWithRole {
+        public Class type;
+        public String role;
 
-    protected void addExtension(Class iface, Class implementation) {
-        List<Class> c = extension.get(iface);
-        if (c == null) {
-            extension.put(iface, c = new ArrayList<Class>());
-        }
-        c.add(implementation);
-    }
-
-    static class PhasedClass {
-        Class type;
-        Phase phase;
-
-        PhasedClass(Class type) {
+        ClassWithRole(Class type) {
             this.type = type;
         }
 
-        PhasedClass(Class type, Phase phase) {
+        ClassWithRole(Class type, String role) {
             this.type = type;
-            this.phase = phase;
+            this.role = role;
         }
     }
 
     class Usage {
+
         private Class implementation;
+
+        private Class iface = null;
+
+        private String role;
 
         private Usage(Class implementation) {
             this.implementation = implementation;
         }
 
-        public void as(Phase phase) {
-
-        }
-
-        public void after(Phase phase) {
+        public void after(String role) {
+            if (iface == null) {
+                throw new GeneratorException("Please set the type of an extension with use(ClassName.class).as(ExtensionType.class)...");
+            }
             int ix = -1;
             int i = 0;
-            for (PhasedClass type : transformations) {
-                if (phase.equals(type.phase)) {
+            for (ClassWithRole type : extensions.get(iface)) {
+                if (role.equals(type.role)) {
                     ix = i;
                     break;
                 }
                 i++;
             }
             if (ix == -1) {
-                throw new IllegalArgumentException("No such element with the phase " + phase);
+                throw new IllegalArgumentException("No such element with the role " + role + " in the extension list of " + iface.getSimpleName());
             }
             ix++;
-            transformations.add(ix, new PhasedClass(implementation));
+            extensions.get(iface).add(ix, new ClassWithRole(implementation));
+        }
+
+        public Usage as(Class iface) {
+            this.iface = iface;
+            return this;
         }
     }
+
+    public MultiMap<Class, ClassWithRole> getExtensions() {
+        return extensions;
+    }
 }
+

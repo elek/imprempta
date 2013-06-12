@@ -1,6 +1,7 @@
 package net.anzix.imprempta.impl;
 
 import net.anzix.imprempta.api.Header;
+import net.anzix.imprempta.api.Syntax;
 import net.anzix.imprempta.api.TextContent;
 import net.anzix.imprempta.api.Transformer;
 import org.pegdown.Extensions;
@@ -9,10 +10,11 @@ import org.pegdown.PegDownProcessor;
 /**
  * Transform markdown type contents.
  */
-public class MarkdowTransformer implements Transformer {
+public class MarkdownSyntax implements Syntax {
+
     PegDownProcessor processor;
 
-    public MarkdowTransformer() {
+    public MarkdownSyntax() {
         this.processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
 
     }

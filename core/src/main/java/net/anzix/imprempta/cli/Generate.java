@@ -1,7 +1,10 @@
-package net.anzix.imprempta;
+package net.anzix.imprempta.cli;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import net.anzix.imprempta.ContentWriter;
 import net.anzix.imprempta.api.*;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,16 +14,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Generator {
+public class Generate implements Command {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Generator.class);
-    /**
-     * Source path.
-     */
-    private Path dir;
+    private static final Logger LOG = LoggerFactory.getLogger(Generate.class);
     /**
      * Destination path
      */
+    @Option(name = "-d", usage = "Destination directory", handler = PathOptionHandler.class)
+    @Named("rootdir")
     private Path destination;
 
     private Set<String> excludes = new HashSet<String>();
@@ -37,13 +38,22 @@ public class Generator {
     @Inject
     Set<Transformer> transformers;
 
+    Path dir;
 
-    public Generator() {
+
+    public Generate() {
         excludes.add(".git");
         excludes.add("_site");
+        excludes.add("build");
     }
 
-    public void generate() {
+    @Override
+    public void execute() {
+        dir = Paths.get(site.getSourceDir());
+        if (destination == null) {
+            destination = dir.resolve("_site");
+        }
+        destination = destination.toAbsolutePath();
         try {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override

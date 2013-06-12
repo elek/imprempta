@@ -15,7 +15,7 @@ public class SimplifiedLiquidTransformerTest {
         YamlHeaderContentParser parser = new YamlHeaderContentParser(Paths.get("."));
         Layout l = (Layout) parser.parse(Paths.get("src/test/resources/jhacks/_layouts/default.html"));
 
-        Site s = new Site();
+        Site s = new Site(".");
         s.addLayout(l);
 
 
