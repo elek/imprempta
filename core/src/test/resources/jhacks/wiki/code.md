@@ -14,3 +14,15 @@ public class Test {
 
 }
 ```
+
+And:
+
+```java
+public class Test {
+   public static void main(String args[]) {
+      //YES
+      System.out.println("NO");
+   }
+
+}
+```

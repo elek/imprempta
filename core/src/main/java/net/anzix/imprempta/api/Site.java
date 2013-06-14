@@ -2,8 +2,8 @@ package net.anzix.imprempta.api;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import net.anzix.imprempta.api.header.HeaderExtension;
 
-import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,6 +23,8 @@ public class Site {
 
     private String sourceDir;
 
+    private List<HeaderExtension> headerExtensions = new ArrayList<>();
+
     @Inject
     public Site(@Named("sourcedir") String sourceDir) {
         this.sourceDir = sourceDir;
@@ -33,7 +35,7 @@ public class Site {
     }
 
     public List<Content> getContents() {
-        return contents;
+        return new ArrayList<>(contents);
     }
 
     public void addLayout(Layout layout) {
@@ -91,5 +93,21 @@ public class Site {
 
     public void setSourceDir(String sourceDir) {
         this.sourceDir = sourceDir;
+    }
+
+    public void addHeaderExtension(HeaderExtension ext) {
+        headerExtensions.add(ext);
+    }
+
+    public List<HeaderExtension> getHeaderExtensions() {
+        return headerExtensions;
+    }
+
+    public String getHeaderExtension() {
+        StringBuilder b = new StringBuilder();
+        for (HeaderExtension hex : headerExtensions) {
+            b.append("   " + hex.render() + "\n");
+        }
+        return b.toString();
     }
 }

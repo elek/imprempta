@@ -52,7 +52,7 @@ public class GuiceConfig extends AbstractModule {
         addExtension(Syntax.class, SimpleSyntax.class, "css");
         addExtension(Syntax.class, SimpleSyntax.class, "html");
 
-        addExtension(SyntaxHighlighter.class, HTMLSyntaxHighlighter.class);
+        addExtension(SyntaxHighlighter.class, HighlightJsHighlighter.class);
 
         readConfig();
 

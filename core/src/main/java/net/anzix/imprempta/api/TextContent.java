@@ -1,5 +1,8 @@
 package net.anzix.imprempta.api;
 
+import java.nio.file.Paths;
+import java.util.Scanner;
+
 /**
  * Text content, sould be transformed for output.
  */
@@ -16,4 +19,10 @@ public class TextContent extends Content {
     }
 
 
+    public static TextContent fromResource(String resource, String logicalPath) {
+        TextContent c = new TextContent();
+        c.setContent(new Scanner(TextContent.class.getResourceAsStream(resource)).useDelimiter("\\Z").next());
+        c.setSource(Paths.get(logicalPath));
+        return c;
+    }
 }
