@@ -1,9 +1,16 @@
 package net.anzix.imprempta;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.AbstractMatcher;
+import com.google.inject.matcher.Matcher;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.google.inject.spi.InjectionListener;
+import com.google.inject.spi.TypeEncounter;
+import com.google.inject.spi.TypeListener;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import net.anzix.imprempta.api.*;
@@ -14,6 +21,9 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -25,6 +35,16 @@ public class GuiceConfig extends AbstractModule {
     String rootdir;
 
     MultiMap<Class, ClassWithRole> extensions = new MultiMap<>();
+
+    /**
+     * Type specific parameters.
+     */
+    Map<Class, Map<String, String>> parameters = new HashMap<>();
+    /**
+     * Generic parameters
+     */
+    Map<String, String> genericParameters = new HashMap<>();
+
 
     public GuiceConfig() {
     }
@@ -53,6 +73,41 @@ public class GuiceConfig extends AbstractModule {
         addExtension(Syntax.class, SimpleSyntax.class, "html");
 
         addExtension(SyntaxHighlighter.class, HighlightJsHighlighter.class);
+        parameters.put(HighlightJsHighlighter.class, new HashMap<String, String>());
+        parameters.get(HighlightJsHighlighter.class).put("style", "idea");
+
+        Matcher<TypeLiteral<?>> m = new AbstractMatcher<TypeLiteral<?>>() {
+            @Override
+            public boolean matches(TypeLiteral<?> typeLiteral) {
+                return typeLiteral.getRawType().equals(String.class);
+            }
+        };
+        bindListener(Matchers.any(), new TypeListener() {
+
+            @Override
+            public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter) {
+                encounter.register(new InjectionListener<I>() {
+                    @Override
+                    public void afterInjection(I injectee) {
+                        for (Field f : injectee.getClass().getDeclaredFields()) {
+                            if (f.isAnnotationPresent(Parameter.class)) {
+                                if (parameters.get(injectee.getClass()) != null) {
+                                    String v = parameters.get(injectee.getClass()).get(f.getName());
+                                    if (v != null) {
+                                        try {
+                                            f.setAccessible(true);
+                                            f.set(injectee, v);
+                                        } catch (IllegalAccessException e) {
+                                            throw new GeneratorException("Can't inject parameter " + f.getName() + " to " + injectee, e);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
 
         readConfig();
 

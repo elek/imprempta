@@ -1,6 +1,7 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
+import net.anzix.imprempta.api.Parameter;
 import net.anzix.imprempta.api.Site;
 import net.anzix.imprempta.api.SyntaxHighlighter;
 import net.anzix.imprempta.api.TextContent;
@@ -18,7 +19,8 @@ public class HighlightJsHighlighter implements SyntaxHighlighter {
 
     boolean firstTime = true;
 
-    private String style = "idea";
+    @Parameter()
+    private String style = "default";
 
     @Override
     public String highlight(String format, String content) {
@@ -33,7 +35,7 @@ public class HighlightJsHighlighter implements SyntaxHighlighter {
             tc = TextContent.fromResource("/highlight.pack.js", "js/highlight.pack.js");
             site.addContent(tc);
 
-            tc = TextContent.fromResource("/default.css", "styles/" + style + ".css");
+            tc = TextContent.fromResource("/" + style + ".css", "styles/" + style + ".css");
             site.addContent(tc);
 
             firstTime = false;

@@ -10,7 +10,7 @@ version             : 11
 creator             : kocka 
 ---
 
--   [webapp/Tipikus hibak](webapp/Tipikus hibak.html)
+-   [Tipikushibak](Tipikushibak.html)
 -   [webapp/db connection pool](webapp/db connection pool.html)
 -   [webapp](webapp.html)
 
