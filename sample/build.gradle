@@ -3,6 +3,9 @@ buildscript {
         maven {
             url uri('http://repository-anzix.forge.cloudbees.com/snapshot/')
         }
+        maven {
+            url uri('http://repository-anzix.forge.cloudbees.com/release/')
+        }
         mavenCentral()
     }
     dependencies {
