@@ -45,11 +45,14 @@ public class GuiceConfig extends AbstractModule {
         addExtension(Transformer.class, SyntaxTransformer.class, Phase.SYNTAX);
         addExtension(Transformer.class, HandlebarsTransformer.class, Phase.TEMPLATE);
 
-        addExtension(Syntax.class, MarkdownSyntax.class, "md");
-        addExtension(Syntax.class, MarkdownSyntax.class, "markdown");
+
+        addExtension(Syntax.class, PegdownSyntax.class, "md");
+        addExtension(Syntax.class, PegdownSyntax.class, "markdown");
         addExtension(Syntax.class, SimpleSyntax.class, "js");
         addExtension(Syntax.class, SimpleSyntax.class, "css");
         addExtension(Syntax.class, SimpleSyntax.class, "html");
+
+        addExtension(SyntaxHighlighter.class, HTMLSyntaxHighlighter.class);
 
         readConfig();
 
@@ -66,6 +69,10 @@ public class GuiceConfig extends AbstractModule {
         }
         bind(GuiceConfig.class).toInstance(this);
 
+    }
+
+    private void addExtension(Class iface, Class implementation) {
+        extensions.map(iface, new ClassWithRole(implementation));
     }
 
     private <T> void addExtension(Class<T> iface, Class<? extends T> implementation, String parse) {

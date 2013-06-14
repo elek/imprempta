@@ -54,6 +54,12 @@ public class Generate implements Command {
             destination = dir.resolve("_site");
         }
         destination = destination.toAbsolutePath();
+        if (!destination.toFile().getParentFile().exists()) {
+            destination.toFile().getParentFile().mkdirs();
+        }
+        if (!Files.exists(dir)) {
+            throw new GeneratorException("Source directory doesn't exist: " + dir.toAbsolutePath());
+        }
         try {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -106,6 +112,7 @@ public class Generate implements Command {
         }
 
         //write out
+        LOG.info("Writing file to the dir " + destination.toAbsolutePath());
         for (Content c : site.getContents()) {
             Path dest = destination.resolve(c.getSource());
             String newName = c.getMeta(Header.NAME) + "." + c.getMeta(Header.TYPE);
