@@ -8,6 +8,7 @@ import net.anzix.imprempta.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +31,16 @@ public class YamlHeaderContentParser implements ContentParser {
         this.syntaxes = syntaxes;
     }
 
+    /**
+     * constructor for testing
+     *
+     * @param rootDir
+     */
     public YamlHeaderContentParser(Path rootDir) {
         this.rootDir = rootDir;
+        this.syntaxes = new HashMap<>();
+        this.syntaxes.put("html", new SimpleSyntax());
+        this.syntaxes.put("md", new PegdownSyntax());
     }
 
     @Override

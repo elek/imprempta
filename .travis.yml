@@ -2,8 +2,8 @@
 language: java
 jdk:
 - oraclejdk7
-install: ./gradlew assemble
-script: ./gradlew uploadArchive
+install: ./gradlew -q assemble --info
+script: ./gradlew -q uploadArchive --info
 env:
   global:
   - secure: |-

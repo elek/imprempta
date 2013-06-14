@@ -37,7 +37,7 @@ public class LegacyStarter {
         System.out.println(LegacyStarter.class.getClassLoader().getClass());
         URLClassLoader l = new URLClassLoader(urls.toArray(new URL[0]));
         Class c = l.loadClass("net.anzix.imprempta.Start");
-        Object params = new String[]{dir, dest};
+        Object params = new String[]{"-s", dir, "generate", "-d", dest};
         c.getMethod("main", String[].class).invoke(null, params);
     }
 }
