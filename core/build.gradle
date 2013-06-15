@@ -1,9 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'application'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
+mainClassName = 'net.anzix.imprempta.Start'
 
 
 repositories {
@@ -20,7 +22,7 @@ jar {
 }
 
 dependencies {
-  //TODO upload it to the repo
+    compile 'org.yaml:snakeyaml:1.12'
     compile 'net.anzix.repack:prettify:1.2.1'
     compile 'com.google.guava:guava:14.0'
     compile 'com.github.jknack:handlebars:1.0.0'

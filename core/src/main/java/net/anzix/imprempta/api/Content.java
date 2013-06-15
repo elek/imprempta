@@ -95,4 +95,8 @@ public abstract class Content {
         String ext = (String) getMeta(Header.TYPE);
         return ext != null && (ext.equals("css") || ext.equals("js"));
     }
+
+    public void setMetaHolder(Map<String, Object> metaHolder) {
+        this.metadaata = metaHolder;
+    }
 }
