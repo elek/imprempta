@@ -1,24 +1,29 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.anzix.imprempta.api.*;
 
-/**
- * Transformer for typical template engines with recursive layout resolution.
- */
-public abstract class BasicTemplateTransformer implements Transformer {
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Recursove layour resolution with the helping of a template language.
+ */
+public class TemplateLayoutTransformer implements Transformer {
     @Inject
     Site site;
+
+    @Inject
+    ExtensionManager manager;
+    private TemplateLanguage templateLanguage;
+
+    @Inject
+    Injector inject;
 
 
     @Override
     public void transform(TextContent content) {
-        resolveLayout(content);
-    }
-
-    private void resolveLayout(TextContent content) {
-        content.setContent(transform(content, null));
         while (content.getMeta(Header.LAYOUT) != null) {
             String layoutName = (String) content.getMeta(Header.LAYOUT);
             Layout layout = site.getLayout(layoutName);
@@ -30,11 +35,15 @@ public abstract class BasicTemplateTransformer implements Transformer {
         }
     }
 
-    protected abstract String transform(TextContent layout, TextContent content);
-
     private void render(Layout layout, TextContent content) {
         content.delMeta("layout");
-        String newContent = transform(layout, content);
+
+        Map<String, Object> values = new HashMap<String, Object>();
+        values.put("site", site);
+        values.put("content", content.getContent());
+        values.put("page", content);
+
+        String newContent = getTemplateLanguage(layout).render(layout, values);
         content.setContent(newContent);
         for (String meta : layout.getMetaKeys()) {
             if (!meta.equals(Header.PARENT.toString().toLowerCase()) && content.getMeta(meta) == null) {
@@ -43,7 +52,8 @@ public abstract class BasicTemplateTransformer implements Transformer {
         }
     }
 
-    public void setSite(Site site) {
-        this.site = site;
+
+    public TemplateLanguage getTemplateLanguage(TextContent content) {
+        return inject.getInstance(manager.getExtensionChain(TemplateLanguage.class).getFirstMatch(content));
     }
 }

@@ -23,13 +23,15 @@ import static java.nio.charset.Charset.forName;
 public class YamlHeaderContentParser implements ContentParser {
 
     private Path rootDir;
-    private Map<String, Syntax> syntaxes;
+
+    private ExtensionManager ext;
+
     private Site site;
 
     @Inject
-    public YamlHeaderContentParser(Map<String, Syntax> syntaxes, Site site) {
+    public YamlHeaderContentParser(ExtensionManager extMan, Site site) {
         this(Paths.get(site.getSourceDir()));
-        this.syntaxes = syntaxes;
+        this.ext = extMan;
     }
 
     /**
@@ -39,20 +41,20 @@ public class YamlHeaderContentParser implements ContentParser {
      */
     public YamlHeaderContentParser(Path rootDir) {
         this.rootDir = rootDir;
-        this.syntaxes = new HashMap<>();
-        this.syntaxes.put("html", new SimpleSyntax());
-        this.syntaxes.put("md", new PegdownSyntax());
+        this.ext = new ExtensionManager();
+        this.ext.addExtension(Syntax.class, SimpleSyntax.class, "html");
+        this.ext.addExtension(Syntax.class, SimpleSyntax.class, "md");
     }
 
     @Override
     public Content parse(Path file) {
-        String ext = Files.getFileExtension(file.getFileName().toString());
+        String fileExtension = Files.getFileExtension(file.getFileName().toString());
         String parentDir = file.getParent().getFileName().toString();
         if (parentDir.equals("_layouts")) {
             Layout c = new Layout();
             loadTextContent(file, c);
             return c;
-        } else if (syntaxes.keySet().contains(ext.toLowerCase())) {
+        } else if (this.ext.getExtensionChain(Syntax.class).getRoles().contains(fileExtension)) {
             TextContent c = new TextContent();
             loadTextContent(file, c);
             return c;
@@ -70,7 +72,6 @@ public class YamlHeaderContentParser implements ContentParser {
 
     void loadTextContent(Path file, TextContent c) {
         try {
-            c.setSource(rootDir.relativize(file));
             StringBuilder content = new StringBuilder();
             List<String> lines = java.nio.file.Files.readAllLines(file, forName("UTF-8"));
             int lineno = 0;
@@ -98,6 +99,7 @@ public class YamlHeaderContentParser implements ContentParser {
                 lineno++;
             }
             c.setContent(content.toString());
+            c.setSource(rootDir.relativize(file));
         } catch (IOException e) {
             throw new GeneratorException("Can't open file: " + file.toAbsolutePath().toString(), e);
         }

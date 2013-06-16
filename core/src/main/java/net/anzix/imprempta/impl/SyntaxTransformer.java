@@ -1,11 +1,10 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
-import net.anzix.imprempta.api.Header;
-import net.anzix.imprempta.api.Syntax;
-import net.anzix.imprempta.api.TextContent;
-import net.anzix.imprempta.api.Transformer;
+import com.google.inject.Injector;
+import net.anzix.imprempta.api.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,13 +13,18 @@ import java.util.Map;
 public class SyntaxTransformer implements Transformer {
 
     @Inject
-    Map<String, Syntax> syntaxes;
+    ExtensionManager ext;
+
+    @Inject
+    Injector inject;
 
     @Override
     public void transform(TextContent content) {
-        for (String role : syntaxes.keySet()) {
-            if (role.equals(content.getMeta(Header.TYPE))) {
-                syntaxes.get(role).transform(content);
+        //todo use selector instead of role
+        ExtensionChain<Syntax> syntaxExts = ext.getExtensionChain(Syntax.class);
+        for (Extension<Syntax> syn : syntaxExts.getAllExtension(content)) {
+            if (syn.role.equals(content.getMeta(Header.TYPE))) {
+                inject.getInstance(syn.type).transform(content);
             }
         }
     }

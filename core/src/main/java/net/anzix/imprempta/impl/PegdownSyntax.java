@@ -1,6 +1,7 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.anzix.imprempta.api.*;
 import org.parboiled.common.StringUtils;
 import org.pegdown.*;
@@ -19,7 +20,12 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
     PegDownProcessor processor;
 
     @Inject
-    Set<SyntaxHighlighter> highlighters;
+    ExtensionManager manager;
+
+    @Inject
+    Injector injector;
+
+    private SyntaxHighlighter highlighter;
 
     public PegdownSyntax() {
         this.processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
@@ -27,6 +33,11 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
 
     @Override
     public void transform(TextContent content) {
+        Class<? extends SyntaxHighlighter> shtype = manager.getExtensionChain(SyntaxHighlighter.class).getFirstMatch(content);
+        SyntaxHighlighter highlighter = null;
+        if (shtype != null) {
+            highlighter = injector.getInstance(shtype);
+        }
 
         if (content.getMeta(Header.TYPE).equals("md")) {
 
@@ -49,6 +60,8 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
 
     @Override
     public void serialize(VerbatimNode node, Printer printer) {
+
+
         printer.println().print("<pre><code");
         if (!StringUtils.isEmpty(node.getType())) {
             printAttribute(printer, "class", node.getType());
@@ -60,8 +73,8 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
             printer.print("<br/>");
             text = text.substring(1);
         }
-        if (highlighters.size() > 0) {
-            printer.print(highlighters.iterator().next().highlight(node.getType(), text));
+        if (highlighter != null) {
+            printer.print(highlighter.highlight(node.getType(), text));
         } else {
             printer.printEncoded(text);
         }

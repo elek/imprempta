@@ -14,9 +14,12 @@ import com.google.inject.spi.TypeListener;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import net.anzix.imprempta.api.*;
+import net.anzix.imprempta.cli.Generate;
 import net.anzix.imprempta.impl.*;
 import org.antlr.v4.runtime.misc.MultiMap;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,10 +34,12 @@ import java.util.Scanner;
  */
 public class GuiceConfig extends AbstractModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GuiceConfig.class);
 
     String rootdir;
 
-    MultiMap<Class, ClassWithRole> extensions = new MultiMap<>();
+    ExtensionManager ext = new ExtensionManager();
+
 
     /**
      * Type specific parameters.
@@ -61,18 +66,21 @@ public class GuiceConfig extends AbstractModule {
         bind(ContentWriter.class).asEagerSingleton();
         bind(ContentParser.class).to(YamlHeaderContentParser.class).asEagerSingleton();
 
-        addExtension(Transformer.class, NoTransformer.class, Phase.PARSE);
-        addExtension(Transformer.class, SyntaxTransformer.class, Phase.SYNTAX);
-        addExtension(Transformer.class, HandlebarsTransformer.class, Phase.TEMPLATE);
+        ext.addExtension(Transformer.class, NoTransformer.class, Phase.PARSE);
+        ext.addExtension(Transformer.class, SyntaxTransformer.class, Phase.SYNTAX);
+        ext.addExtension(Transformer.class, TemplateContentTransformer.class, "template");
+        ext.addExtension(Transformer.class, TemplateLayoutTransformer.class, "layout");
+
+        ext.addExtension(TemplateLanguage.class, HandlebarsTemplateLanguage.class, "default");
 
 
-        addExtension(Syntax.class, PegdownSyntax.class, "md");
-        addExtension(Syntax.class, PegdownSyntax.class, "markdown");
-        addExtension(Syntax.class, SimpleSyntax.class, "js");
-        addExtension(Syntax.class, SimpleSyntax.class, "css");
-        addExtension(Syntax.class, SimpleSyntax.class, "html");
+        ext.addExtension(Syntax.class, PegdownSyntax.class, "md");
+        ext.addExtension(Syntax.class, PegdownSyntax.class, "markdown");
+        ext.addExtension(Syntax.class, SimpleSyntax.class, "js");
+        ext.addExtension(Syntax.class, SimpleSyntax.class, "css");
+        ext.addExtension(Syntax.class, SimpleSyntax.class, "html");
 
-        addExtension(SyntaxHighlighter.class, HighlightJsHighlighter.class);
+        ext.addExtension(SyntaxHighlighter.class, HighlightJsHighlighter.class);
         parameters.put(HighlightJsHighlighter.class, new HashMap<String, String>());
         parameters.get(HighlightJsHighlighter.class).put("style", "idea");
 
@@ -112,27 +120,20 @@ public class GuiceConfig extends AbstractModule {
         readConfig();
 
 
-        for (Class iface : extensions.keySet()) {
-            MapBinder<String, Object> mapBinder = MapBinder.newMapBinder(binder(), String.class, iface);
-            Multibinder binder = Multibinder.newSetBinder(binder(), iface);
-            for (ClassWithRole impl : extensions.get(iface)) {
-                if (impl.role != null) {
-                    mapBinder.addBinding(impl.role).to(impl.type);
-                }
-                binder.addBinding().to(impl.type);
-            }
-        }
+        //for (Class iface : extensions.keySet()) {
+        //LOG.debug("Binding extension " + iface);
+        //bind(ExtensionChain.class).annotatedWith(new TypeImpl(iface)).toInstance(extensions.get(iface));
+        //}
+        bind(ExtensionManager.class).toInstance(ext);
         bind(GuiceConfig.class).toInstance(this);
 
+
     }
 
-    private void addExtension(Class iface, Class implementation) {
-        extensions.map(iface, new ClassWithRole(implementation));
-    }
+//    public <T> Class<ExtensionChain<T>> g(Class<T> type){
+//        return (Class<ExtensionChain<T>>) ExtensionChain<T>.class;
+//    }
 
-    private <T> void addExtension(Class<T> iface, Class<? extends T> implementation, String parse) {
-        extensions.map(iface, new ClassWithRole(implementation, parse));
-    }
 
     void readConfig() {
         File config = new File(new File(rootdir), "imprempta.groovy");
@@ -157,65 +158,6 @@ public class GuiceConfig extends AbstractModule {
         }
     }
 
-    public Usage use(Class type) {
-        return new Usage(type);
-    }
 
-
-    public static class ClassWithRole {
-        public Class type;
-        public String role;
-
-        ClassWithRole(Class type) {
-            this.type = type;
-        }
-
-        ClassWithRole(Class type, String role) {
-            this.type = type;
-            this.role = role;
-        }
-    }
-
-    class Usage {
-
-        private Class implementation;
-
-        private Class iface = null;
-
-        private String role;
-
-        private Usage(Class implementation) {
-            this.implementation = implementation;
-        }
-
-        public void after(String role) {
-            if (iface == null) {
-                throw new GeneratorException("Please set the type of an extension with use(ClassName.class).as(ExtensionType.class)...");
-            }
-            int ix = -1;
-            int i = 0;
-            for (ClassWithRole type : extensions.get(iface)) {
-                if (role.equals(type.role)) {
-                    ix = i;
-                    break;
-                }
-                i++;
-            }
-            if (ix == -1) {
-                throw new IllegalArgumentException("No such element with the role " + role + " in the extension list of " + iface.getSimpleName());
-            }
-            ix++;
-            extensions.get(iface).add(ix, new ClassWithRole(implementation));
-        }
-
-        public Usage as(Class iface) {
-            this.iface = iface;
-            return this;
-        }
-    }
-
-    public MultiMap<Class, ClassWithRole> getExtensions() {
-        return extensions;
-    }
 }
 

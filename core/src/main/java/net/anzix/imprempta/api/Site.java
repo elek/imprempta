@@ -74,7 +74,7 @@ public class Site {
     }
 
     public Date getDate(Content content) {
-        String date = (String) content.getMeta(Header.DATE);
+        String date = (String) content. getMeta(Header.DATE);
         if (date != null) {
             try {
                 return defaultDateFormat.parse(date);

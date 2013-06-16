@@ -10,7 +10,7 @@ public class StartIntegrationTest {
     @Test
     public void main() {
         String source = "src/test/resources/jhacks";
-        Start.main(new String[]{"-s", source, "extension"});
-        Start.main(new String[]{"-s", source, "generate", "-d", "build/_site"});
+        Start.main(new String[]{"-v", "-s", source, "extension"});
+        Start.main(new String[]{"-v", "-s", source, "generate", "-d", "build/_site"});
     }
 }

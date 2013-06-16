@@ -1,9 +1,11 @@
 package net.anzix.imprempta.cli;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import net.anzix.imprempta.ContentWriter;
 import net.anzix.imprempta.api.*;
+import net.anzix.imprempta.api.Extension;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Generate implements Command {
@@ -36,7 +39,10 @@ public class Generate implements Command {
     Site site;
 
     @Inject
-    Set<Transformer> transformers;
+    ExtensionManager manager;
+
+    @Inject
+    Injector injector;
 
     Path dir;
 
@@ -44,6 +50,7 @@ public class Generate implements Command {
     public Generate() {
         excludes.add(".git");
         excludes.add("_site");
+        excludes.add("old");
         excludes.add("build");
     }
 
@@ -96,14 +103,19 @@ public class Generate implements Command {
         }
 
         //writer makrdown, and add resolution, etc.
-        for (Transformer trafo : transformers) {
+        for (net.anzix.imprempta.api.Extension<Transformer> ext : (List<Extension<Transformer>>) manager.getExtensions(Transformer.class).getExtensions()) {
+            LOG.debug("Applying transformation " + ext.type + "(" + ext.role + ")");
             for (Content c : site.getContents()) {
                 if (c instanceof TextContent) {
                     try {
-                        trafo.transform((TextContent) c);
+                        if (ext.isActiveFor(c)) {
+                            LOG.debug("   Processing " + c.getUrl());
+                            injector.getInstance(ext.type).transform((TextContent) c);
+                        }
                     } catch (Exception ex) {
                         if (ex instanceof ContentGenerationException) {
-                            LOG.error("Error in " + ((ContentGenerationException) ex).getSource().getUrl(), ex);
+                            LOG.error("Error in " + ((ContentGenerationException) ex).getSource().getUrl() +
+                                    " " + ex.getMessage() + (ex.getCause() != null ? ex.getCause().getMessage() : ":"), ex);
                         }
                         throw ex;
                     }

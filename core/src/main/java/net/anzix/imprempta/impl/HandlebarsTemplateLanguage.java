@@ -1,7 +1,6 @@
 package net.anzix.imprempta.impl;
 
 import com.github.jknack.handlebars.*;
-import com.github.jknack.handlebars.helper.EachHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.TemplateSource;
 import net.anzix.imprempta.api.*;
@@ -15,14 +14,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Transform templates with Handlebars
- */
-public class HandlebarsTransformer extends BasicTemplateTransformer {
+public class HandlebarsTemplateLanguage implements TemplateLanguage {
 
     Handlebars handlebars = new Handlebars();
 
-    public HandlebarsTransformer() {
+    public HandlebarsTemplateLanguage() {
         handlebars = handlebars.with(new MissingValueResolver() {
             @Override
             public String resolve(Object context, String var) {
@@ -55,33 +51,24 @@ public class HandlebarsTransformer extends BasicTemplateTransformer {
 
     }
 
+
     @Override
-    protected String transform(final TextContent layout, final TextContent content) {
-        final String baseText;
-        if (content != null) {
-            baseText = content.getContent();
-        } else {
-            baseText = layout.getContent();
-        }
+    public String render(final TextContent content, final Map<String, Object> context) {
         try {
             Template template = handlebars.compile(new TemplateSource() {
                 @Override
                 public String content() throws IOException {
-                    return baseText;
+                    return content.getContent();
                 }
 
                 @Override
                 public Reader reader() throws IOException {
-                    return new StringReader(layout.getContent());
+                    return new StringReader(content.getContent());
                 }
 
                 @Override
                 public String filename() {
-                    if (content != null) {
-                        return content.getSource().toString();
-                    } else {
-                        return layout.getSource().toString();
-                    }
+                    return content.getSource().toString();
                 }
 
                 @Override
@@ -90,20 +77,10 @@ public class HandlebarsTransformer extends BasicTemplateTransformer {
                 }
             });
 
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("site", site);
-            if (content != null) {
-                values.put("content", new Handlebars.SafeString(content.getContent()));
-                values.put("page", content);
-            } else {
-                values.put("page", layout);
-            }
 
-            return template.apply(values);
+            return template.apply(context);
         } catch (Exception e) {
-            throw new ContentGenerationException("Can't render template with handlebars ", e, layout);
+            throw new ContentGenerationException("Can't render template with handlebars ", e, content);
         }
-
-
     }
 }
