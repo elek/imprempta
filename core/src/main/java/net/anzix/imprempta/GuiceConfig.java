@@ -5,8 +5,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matcher;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.multibindings.MapBinder;
-import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
@@ -14,9 +12,7 @@ import com.google.inject.spi.TypeListener;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import net.anzix.imprempta.api.*;
-import net.anzix.imprempta.cli.Generate;
 import net.anzix.imprempta.impl.*;
-import org.antlr.v4.runtime.misc.MultiMap;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +24,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
+import static net.anzix.imprempta.api.selector.Selector.*;
 
 /**
  * Guice component wiring.
@@ -66,23 +64,25 @@ public class GuiceConfig extends AbstractModule {
         bind(ContentWriter.class).asEagerSingleton();
         bind(ContentParser.class).to(YamlHeaderContentParser.class).asEagerSingleton();
 
-        ext.addExtension(Transformer.class, NoTransformer.class, Phase.PARSE);
-        ext.addExtension(Transformer.class, SyntaxTransformer.class, Phase.SYNTAX);
-        ext.addExtension(Transformer.class, TemplateContentTransformer.class, "template");
-        ext.addExtension(Transformer.class, TemplateLayoutTransformer.class, "layout");
 
-        ext.addExtension(TemplateLanguage.class, HandlebarsTemplateLanguage.class, "default");
+        ext.use(NoTransformer.class).withRole("parse");
+        ext.use(new MetadataTransfromer("class", "post")).forContent(path("_posts/.*"));
+        ext.use(new JekyllDateParser()).forContent(prop("class", "post"));
+        ext.use(new ShortUrlTransformer()).forContent(prop("class", "post"));
+        ext.use(SyntaxTransformer.class).withRole("syntax");
+        ext.use(TemplateContentTransformer.class).withRole("template").forContent(not(prop("class", "template")));
+        ext.use(TemplateContentTransformer.class).forContent(prop("class", "template"));
+        ext.use(TemplateLayoutTransformer.class).withRole("layout");
 
+        ext.use(HandlebarsTemplateLanguage.class).withRole("default");
 
-        ext.addExtension(Syntax.class, PegdownSyntax.class, "md");
-        ext.addExtension(Syntax.class, PegdownSyntax.class, "markdown");
-        ext.addExtension(Syntax.class, SimpleSyntax.class, "js");
-        ext.addExtension(Syntax.class, SimpleSyntax.class, "css");
-        ext.addExtension(Syntax.class, SimpleSyntax.class, "html");
+        ext.use(PegdownSyntax.class).withRole("md");
+        ext.use(PegdownSyntax.class).withRole("markdown");
+//        ext.use(SimpleSyntax.class).withRole("js");
+//        ext.use(SimpleSyntax.class).withRole("css");
+        ext.use(SimpleSyntax.class).withRole("html");
 
-        ext.addExtension(SyntaxHighlighter.class, HighlightJsHighlighter.class);
-        parameters.put(HighlightJsHighlighter.class, new HashMap<String, String>());
-        parameters.get(HighlightJsHighlighter.class).put("style", "idea");
+        ext.use(new HighlightJsHighlighter().withStyle("idea"));
 
         Matcher<TypeLiteral<?>> m = new AbstractMatcher<TypeLiteral<?>>() {
             @Override
@@ -116,9 +116,9 @@ public class GuiceConfig extends AbstractModule {
                 });
             }
         });
-
+        ext.closeUsage();
         readConfig();
-
+        ext.closeUsage();
 
         //for (Class iface : extensions.keySet()) {
         //LOG.debug("Binding extension " + iface);

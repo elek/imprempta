@@ -2,8 +2,10 @@ package net.anzix.imprempta;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.github.jknack.handlebars.internal.HbsParserFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import net.anzix.imprempta.api.ExtensionManager;
 import net.anzix.imprempta.api.Site;
 import net.anzix.imprempta.cli.Command;
 import net.anzix.imprempta.cli.SubcommandOptionHandler;
@@ -49,11 +51,18 @@ public class Start {
         Logger l = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (verbose) {
             l.setLevel(Level.DEBUG);
+            ((Logger) LoggerFactory.getLogger(HbsParserFactory.class)).setLevel(Level.INFO);
+
         } else {
             l.setLevel(Level.INFO);
+
         }
         Injector i = Guice.createInjector(new GuiceConfig(rootdir));
         i.getInstance(Site.class).setSourceDir(rootdir);
+
+        ExtensionManager manager = i.getInstance(ExtensionManager.class);
+        manager.guicify(i);
+
         Command gen = i.getInstance(commandType.command);
         CmdLineParser p = new CmdLineParser(gen);
         try {

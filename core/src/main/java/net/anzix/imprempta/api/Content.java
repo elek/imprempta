@@ -99,4 +99,9 @@ public abstract class Content {
     public void setMetaHolder(Map<String, Object> metaHolder) {
         this.metadaata = metaHolder;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + source + ']';
+    }
 }

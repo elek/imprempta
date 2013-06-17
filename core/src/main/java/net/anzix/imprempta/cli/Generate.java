@@ -104,13 +104,13 @@ public class Generate implements Command {
 
         //writer makrdown, and add resolution, etc.
         for (net.anzix.imprempta.api.Extension<Transformer> ext : (List<Extension<Transformer>>) manager.getExtensions(Transformer.class).getExtensions()) {
-            LOG.debug("Applying transformation " + ext.type + "(" + ext.role + ")");
+            LOG.debug("Applying transformation " + ext);
             for (Content c : site.getContents()) {
                 if (c instanceof TextContent) {
                     try {
                         if (ext.isActiveFor(c)) {
                             LOG.debug("   Processing " + c.getUrl());
-                            injector.getInstance(ext.type).transform((TextContent) c);
+                            ext.instance.transform((TextContent) c);
                         }
                     } catch (Exception ex) {
                         if (ex instanceof ContentGenerationException) {

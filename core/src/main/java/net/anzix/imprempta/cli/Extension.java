@@ -24,7 +24,7 @@ public class Extension implements Command {
             String.format(tableFormat, "role", "implementation", "selector");
             List<net.anzix.imprempta.api.Extension> exts = extensions.get(type).getExtensions();
             for (net.anzix.imprempta.api.Extension cwr : exts) {
-                System.out.println(String.format(tableFormat, cwr.role == null ? "" : cwr.role, cwr.type.getSimpleName(), cwr.selector.toString()));
+                System.out.println(String.format(tableFormat, cwr.role == null ? "" : cwr.role, cwr.instance.getClass().getSimpleName(), cwr.selector.toString()));
             }
             System.out.println("\n");
         }

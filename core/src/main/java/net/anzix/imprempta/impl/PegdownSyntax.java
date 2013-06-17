@@ -1,7 +1,6 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import net.anzix.imprempta.api.*;
 import org.parboiled.common.StringUtils;
 import org.pegdown.*;
@@ -10,7 +9,6 @@ import org.pegdown.ast.VerbatimNode;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Transform markdown type contents.
@@ -22,9 +20,6 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
     @Inject
     ExtensionManager manager;
 
-    @Inject
-    Injector injector;
-
     private SyntaxHighlighter highlighter;
 
     public PegdownSyntax() {
@@ -33,11 +28,7 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
 
     @Override
     public void transform(TextContent content) {
-        Class<? extends SyntaxHighlighter> shtype = manager.getExtensionChain(SyntaxHighlighter.class).getFirstMatch(content);
-        SyntaxHighlighter highlighter = null;
-        if (shtype != null) {
-            highlighter = injector.getInstance(shtype);
-        }
+        highlighter = manager.getExtensionChain(SyntaxHighlighter.class).getFirstMatch(content);
 
         if (content.getMeta(Header.TYPE).equals("md")) {
 

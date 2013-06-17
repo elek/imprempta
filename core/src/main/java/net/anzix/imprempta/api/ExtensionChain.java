@@ -1,6 +1,6 @@
 package net.anzix.imprempta.api;
 
-import com.google.inject.Inject;
+import net.anzix.imprempta.api.selector.ContentSelector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,10 +14,13 @@ public class ExtensionChain<T> {
 
     private List<Extension<T>> extensions = new ArrayList<>();
 
-    public List<Class<? extends T>> getAll(Content content) {
-        ArrayList<Class<? extends T>> result = new ArrayList<>();
+    /**
+     * Return all of the implementation for a specific content.
+     */
+    public List<T> getAll(Content content) {
+        ArrayList<T> result = new ArrayList<>();
         for (Extension<T> ext : getAllExtension(content)) {
-            result.add(ext.type);
+            result.add(ext.instance);
         }
         return result;
     }
@@ -32,9 +35,9 @@ public class ExtensionChain<T> {
         return result;
     }
 
-    public Class<? extends T> getFirstMatch(Content content) {
+    public T getFirstMatch(Content content) {
         //todo optimze it
-        List<Class<? extends T>> all = getAll(content);
+        List<T> all = getAll(content);
         if (all.size() == 0) {
             return null;
         } else {
@@ -42,15 +45,19 @@ public class ExtensionChain<T> {
         }
     }
 
-    public void add(Class<? extends T> implementation) {
+    public void add(T implementation) {
         extensions.add(new Extension<T>(implementation));
 
     }
 
-    public void add(Class<? extends T> implementation, String role) {
+    public void add(T implementation, String role) {
         extensions.add(new Extension<T>(implementation, role));
-
     }
+
+    public void add(T implementation, String role, ContentSelector sel) {
+        extensions.add(new Extension<T>(implementation, role, sel));
+    }
+
 
     public void addAfterRole(String role, Class implementation) {
     }

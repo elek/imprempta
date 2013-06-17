@@ -42,4 +42,9 @@ public class HighlightJsHighlighter implements SyntaxHighlighter {
         }
         return content;
     }
+
+    public HighlightJsHighlighter withStyle(String style) {
+        this.style = style;
+        return this;
+    }
 }

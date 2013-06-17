@@ -1,7 +1,6 @@
 package net.anzix.imprempta.impl;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import net.anzix.imprempta.api.*;
 
 import java.util.HashMap;
@@ -17,10 +16,6 @@ public class TemplateLayoutTransformer implements Transformer {
     @Inject
     ExtensionManager manager;
     private TemplateLanguage templateLanguage;
-
-    @Inject
-    Injector inject;
-
 
     @Override
     public void transform(TextContent content) {
@@ -54,6 +49,6 @@ public class TemplateLayoutTransformer implements Transformer {
 
 
     public TemplateLanguage getTemplateLanguage(TextContent content) {
-        return inject.getInstance(manager.getExtensionChain(TemplateLanguage.class).getFirstMatch(content));
+        return manager.getExtensionChain(TemplateLanguage.class).getFirstMatch(content);
     }
 }

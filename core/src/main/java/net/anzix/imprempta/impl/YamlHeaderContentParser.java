@@ -42,8 +42,6 @@ public class YamlHeaderContentParser implements ContentParser {
     public YamlHeaderContentParser(Path rootDir) {
         this.rootDir = rootDir;
         this.ext = new ExtensionManager();
-        this.ext.addExtension(Syntax.class, SimpleSyntax.class, "html");
-        this.ext.addExtension(Syntax.class, SimpleSyntax.class, "md");
     }
 
     @Override

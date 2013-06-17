@@ -18,11 +18,12 @@ public class TextContent extends Content {
         return content;
     }
 
-
     public static TextContent fromResource(String resource, String logicalPath) {
         TextContent c = new TextContent();
         c.setContent(new Scanner(TextContent.class.getResourceAsStream(resource)).useDelimiter("\\Z").next());
         c.setSource(Paths.get(logicalPath));
         return c;
     }
+
+
 }
