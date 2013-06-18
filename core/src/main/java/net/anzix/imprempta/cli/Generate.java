@@ -27,6 +27,8 @@ public class Generate implements Command {
     @Named("rootdir")
     private Path destination;
 
+
+
     private Set<String> excludes = new HashSet<String>();
 
     @Inject

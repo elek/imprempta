@@ -1,11 +1,9 @@
 package net.anzix.imprempta;
 
-import java.util.ArrayList;
-
 public class TestGuiceConfig extends GuiceConfig {
 
     public TestGuiceConfig() {
-        super(".");
+        super(".", null);
     }
 
     @Override

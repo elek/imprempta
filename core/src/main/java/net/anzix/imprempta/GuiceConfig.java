@@ -47,44 +47,79 @@ public class GuiceConfig extends AbstractModule {
      * Generic parameters
      */
     Map<String, String> genericParameters = new HashMap<>();
+    private String profile;
 
 
     public GuiceConfig() {
     }
 
-    public GuiceConfig(String rootdir) {
+    public GuiceConfig(String rootdir, String profile) {
         this.rootdir = rootdir;
+        this.profile = profile;
     }
 
-    @Override
-    protected void configure() {
 
-        bind(String.class).annotatedWith(Names.named("sourcedir")).toInstance(rootdir);
-        bind(Site.class).asEagerSingleton();
-        bind(ContentWriter.class).asEagerSingleton();
-        bind(ContentParser.class).to(YamlHeaderContentParser.class).asEagerSingleton();
-
-
+    protected void blogProfile() {
         ext.use(NoTransformer.class).withRole("parse");
         ext.use(new MetadataTransfromer("class", "post")).forContent(path("_posts/.*"));
+        ext.use(new MetadataTransfromer("layout", "post")).forContent(path("_posts/.*"));
         ext.use(new JekyllDateParser()).forContent(prop("class", "post"));
         ext.use(new ShortUrlTransformer()).forContent(prop("class", "post"));
         ext.use(SyntaxTransformer.class).withRole("syntax");
         ext.use(ContentClassifier.class);
+        ext.use(ArchiveIndex.class);
+        ext.use(SiteUpdated.class);
         ext.use(TemplateContentTransformer.class).withRole("template").forContent(not(prop("class", "template")));
         ext.use(TemplateContentTransformer.class).forContent(prop("class", "template"));
         ext.use(TemplateLayoutTransformer.class).withRole("layout");
 
         ext.use(HandlebarsTemplateLanguage.class).withRole("default");
-        //ext.use(FreemarkerTemplateLanguage.class).withRole("default");
 
         ext.use(PegdownSyntax.class).withRole("md");
         ext.use(PegdownSyntax.class).withRole("markdown");
-//        ext.use(SimpleSyntax.class).withRole("js");
-//        ext.use(SimpleSyntax.class).withRole("css");
+        ext.use(SimpleSyntax.class).withRole("html");
+        ext.use(SimpleSyntax.class).withRole("xml");
+
+        ext.use(new HighlightJsHighlighter().withStyle("idea"));
+    }
+
+    protected void wikiProfile() {
+        ext.use(NoTransformer.class).withRole("parse");
+        ext.use(new DateParser("yyyy-MM-dd HH:mm:ss Z"));
+        ext.use(SyntaxTransformer.class).withRole("syntax");
+        ext.use(ContentClassifier.class);
+        ext.use(ArchiveIndex.class);
+        ext.use(SiteUpdated.class);
+        ext.use(TemplateContentTransformer.class).withRole("template").forContent(not(prop("class", "template")));
+        ext.use(TemplateContentTransformer.class).forContent(prop("class", "template"));
+        ext.use(TemplateLayoutTransformer.class).withRole("layout");
+
+        ext.use(HandlebarsTemplateLanguage.class).withRole("default");
+
+        ext.use(PegdownSyntax.class).withRole("md");
+        ext.use(PegdownSyntax.class).withRole("markdown");
         ext.use(SimpleSyntax.class).withRole("html");
 
         ext.use(new HighlightJsHighlighter().withStyle("idea"));
+
+    }
+
+    @Override
+    protected void configure() {
+        if (profile != null) {
+            LOG.debug("Starting configuration with profile " + profile);
+        }
+        bind(String.class).annotatedWith(Names.named("sourcedir")).toInstance(rootdir);
+        bind(Site.class).asEagerSingleton();
+        bind(ContentWriter.class).asEagerSingleton();
+        bind(ContentParser.class).to(YamlHeaderContentParser.class).asEagerSingleton();
+
+        if ("blog".equals(profile)) {
+            blogProfile();
+        } else {
+            wikiProfile();
+        }
+
 
         Matcher<TypeLiteral<?>> m = new AbstractMatcher<TypeLiteral<?>>() {
             @Override

@@ -1,6 +1,9 @@
 package net.anzix.imprempta.impl;
 
 import com.github.jknack.handlebars.*;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.TemplateSource;
 import net.anzix.imprempta.api.*;
@@ -9,7 +12,6 @@ import net.anzix.imprempta.api.header.HeaderExtension;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +21,7 @@ import java.util.Map;
 /**
  * Java based handlebars implementation.
  *
- * @see https://github.com/jknack/handlebars.java
+ * @url https://github.com/jknack/handlebars.java
  */
 public class HandlebarsTemplateLanguage implements TemplateLanguage {
 
@@ -42,19 +44,19 @@ public class HandlebarsTemplateLanguage implements TemplateLanguage {
         });
         //handlebars.registerHelper("each", new EachHelper());
         StringHelpers.dateFormat.registerHelper(handlebars);
-        handlebars.registerHelper("created", new Helper<Content>() {
+        handlebars.registerHelper("rfcdate", new Helper<Date>() {
+            private final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            private final SimpleDateFormat sdf2 = new SimpleDateFormat("Z");
+
             @Override
-            public CharSequence apply(Content context, Options options) throws IOException {
-                String d = (String) context.getMeta(Header.DATE);
-                if (d == null) {
-                    return "";
-                } else {
-                    try {
-                        return new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(d));
-                    } catch (ParseException e) {
-                        throw new GeneratorException("Can't reformat date " + d, e);
-                    }
+            public CharSequence apply(Date context, Options options) throws IOException {
+                String s1 = sdf1.format(context);
+                String s2 = sdf2.format(context);
+                if (s2.length() > 3) {
+                    s2 = s2.substring(0, 3) + ":" + s2.substring(3);
                 }
+                return s1 + s2;
+
             }
         });
 
@@ -68,6 +70,7 @@ public class HandlebarsTemplateLanguage implements TemplateLanguage {
                 return "";
             }
         });
+
 
     }
 
@@ -98,8 +101,8 @@ public class HandlebarsTemplateLanguage implements TemplateLanguage {
                 }
             });
 
-
-            return template.apply(context);
+            Context hcx = Context.newBuilder(context).resolver(JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE).build();
+            return template.apply(hcx);
         } catch (Exception e) {
             throw new ContentGenerationException("Can't render template with handlebars ", e, content);
         }

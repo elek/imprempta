@@ -2,7 +2,6 @@ package net.anzix.imprempta.api;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import net.anzix.imprempta.api.header.HeaderExtension;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,7 +10,7 @@ import java.util.*;
 /**
  * Base class represents all the site data with the data.
  */
-public class Site extends HashMap<String,Object> {
+public class Site extends HashMap<String, Object> {
 
     private List<Content> contents = new ArrayList<Content>();
 
@@ -72,7 +71,7 @@ public class Site extends HashMap<String,Object> {
     }
 
     public Date getDate(Content content) {
-        String date = (String) content. getMeta(Header.DATE);
+        String date = (String) content.getMeta(Header.DATE);
         if (date != null) {
             try {
                 return defaultDateFormat.parse(date);
@@ -93,5 +92,12 @@ public class Site extends HashMap<String,Object> {
         this.sourceDir = sourceDir;
     }
 
+    public Object get(Header header) {
+        return get(header.name().toLowerCase());
+    }
+
+    public void put(Header header, Object o) {
+        put(header.name().toLowerCase(), o);
+    }
 
 }

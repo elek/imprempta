@@ -1,7 +1,6 @@
 package net.anzix.imprempta.api;
 
 import com.google.common.io.Files;
-import net.anzix.imprempta.api.header.HeaderExtension;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -72,16 +71,16 @@ public abstract class Content extends HashMap<String, Object> {
         Path p = (Path) getMeta(Header.PARENT);
         String name = getMeta(Header.NAME) + "." + getMeta(Header.TYPE);
         if (p != null) {
-            return p.resolve(name).toString();
+            return p.resolve(name).toString().replace('\\', '/');
         } else {
-            return name;
+            return name.replace('\\', '/');
         }
 
     }
 
     public String getRootUrl() {
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < countOccurrences(getUrl(), File.separatorChar); i++) {
+        for (int i = 0; i < countOccurrences(getUrl(), '/'); i++) {
             s.append("../");
         }
         return s.toString();
@@ -110,6 +109,10 @@ public abstract class Content extends HashMap<String, Object> {
 
     public Object get(Header header) {
         return get(header.name().toLowerCase());
+    }
+
+    public void put(Header header, Object o) {
+        put(header.name().toLowerCase(), o);
     }
 
 

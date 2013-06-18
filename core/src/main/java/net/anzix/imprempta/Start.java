@@ -26,6 +26,9 @@ public class Start {
     @Option(name = "-s", usage = "Source directory")
     private String rootdir = ".";
 
+    @Option(name = "-p", usage = "Profile to define a custom set of plugins. Currently it could be wiki or blog")
+    private String preset;
+
     @Argument(metaVar = "command", handler = SubcommandOptionHandler.class, required = true)
     CommandWithArgs commandType;
 
@@ -57,7 +60,7 @@ public class Start {
             l.setLevel(Level.INFO);
 
         }
-        Injector i = Guice.createInjector(new GuiceConfig(rootdir));
+        Injector i = Guice.createInjector(new GuiceConfig(rootdir, preset));
         i.getInstance(Site.class).setSourceDir(rootdir);
 
         ExtensionManager manager = i.getInstance(ExtensionManager.class);

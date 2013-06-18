@@ -2,6 +2,7 @@ package net.anzix.imprempta.impl;
 
 
 import com.google.inject.Inject;
+import net.anzix.imprempta.api.Header;
 import net.anzix.imprempta.api.Site;
 import net.anzix.imprempta.api.TextContent;
 import net.anzix.imprempta.api.Transformer;
@@ -24,6 +25,6 @@ public class LastModifiedDate implements Transformer {
         File f = Paths.get(site.getSourceDir()).resolve(content.getSource()).toFile();
         long date = f.lastModified();
         Date d = new Date(date);
-        content.setMeta("xxx", d.toString());
+        content.put(Header.DATE, d.toString());
     }
 }
