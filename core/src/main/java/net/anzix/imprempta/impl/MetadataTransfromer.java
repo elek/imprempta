@@ -25,6 +25,6 @@ public class MetadataTransfromer implements Transformer {
 
     @Override
     public void transform(TextContent content) {
-        content.setMeta(key, value);
+        content.put(key, value);
     }
 }

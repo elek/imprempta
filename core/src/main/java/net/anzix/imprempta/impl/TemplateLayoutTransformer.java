@@ -19,8 +19,8 @@ public class TemplateLayoutTransformer implements Transformer {
 
     @Override
     public void transform(TextContent content) {
-        while (content.getMeta(Header.LAYOUT) != null) {
-            String layoutName = (String) content.getMeta(Header.LAYOUT);
+        while (content.get(Header.LAYOUT) != null) {
+            String layoutName = (String) content.get(Header.LAYOUT);
             Layout layout = site.getLayout(layoutName);
             if (layout == null) {
                 throw new GeneratorException("No such layout: " + layoutName + " " + content.getSource());

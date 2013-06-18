@@ -58,6 +58,19 @@ public class ExtensionChain<T> {
         extensions.add(new Extension<T>(implementation, role, sel));
     }
 
+    public void addAdter(Class<T> type, T implementation, String role, ContentSelector selector) {
+        int ix = -1;
+        for (int i = 0; i < extensions.size(); i++) {
+            if (extensions.get(i).instance.getClass().equals(type)) {
+                ix = i;
+            }
+        }
+        if (ix == -1) {
+            ix = extensions.size();
+        }
+        extensions.add(ix, new Extension<T>(implementation, role, selector));
+    }
+
 
     public void addAfterRole(String role, Class implementation) {
     }

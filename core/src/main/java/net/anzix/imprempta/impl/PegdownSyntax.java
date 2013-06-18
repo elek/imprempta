@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Transform markdown type contents.
  */
-public class PegdownSyntax implements Syntax, VerbatimSerializer {
+public class PegdownSyntax implements Syntax {
 
     PegDownProcessor processor;
 
@@ -35,7 +35,7 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
             try {
 
                 Map<String, VerbatimSerializer> serializers = new HashMap<>();
-                serializers.put(VerbatimSerializer.DEFAULT, this);
+                serializers.put(VerbatimSerializer.DEFAULT, new CustomVerbatimSerializer(content));
                 RootNode astRoot = processor.parseMarkdown(content.getContent().toCharArray());
                 String res = new ToHtmlSerializer(new LinkRenderer(), serializers).toHtml(astRoot);
                 content.setContent(res);
@@ -49,30 +49,39 @@ public class PegdownSyntax implements Syntax, VerbatimSerializer {
         }
     }
 
-    @Override
-    public void serialize(VerbatimNode node, Printer printer) {
+    private class CustomVerbatimSerializer implements VerbatimSerializer{
+
+        TextContent content;
+
+        private CustomVerbatimSerializer(TextContent content) {
+            this.content = content;
+        }
+
+        @Override
+        public void serialize(VerbatimNode node, Printer printer) {
 
 
-        printer.println().print("<pre><code");
-        if (!StringUtils.isEmpty(node.getType())) {
-            printAttribute(printer, "class", node.getType());
+            printer.println().print("<pre><code");
+            if (!StringUtils.isEmpty(node.getType())) {
+                printAttribute(printer, "class", node.getType());
+            }
+            printer.print(">");
+            String text = node.getText();
+            // print HTML breaks for all initial newlines
+            while (text.charAt(0) == '\n') {
+                printer.print("<br/>");
+                text = text.substring(1);
+            }
+            if (highlighter != null) {
+                printer.print(highlighter.highlight(node.getType(), text, content));
+            } else {
+                printer.printEncoded(text);
+            }
+            printer.print("</code></pre>");
         }
-        printer.print(">");
-        String text = node.getText();
-        // print HTML breaks for all initial newlines
-        while (text.charAt(0) == '\n') {
-            printer.print("<br/>");
-            text = text.substring(1);
-        }
-        if (highlighter != null) {
-            printer.print(highlighter.highlight(node.getType(), text));
-        } else {
-            printer.printEncoded(text);
-        }
-        printer.print("</code></pre>");
-    }
 
-    private void printAttribute(final Printer printer, final String name, final String value) {
-        printer.print(' ').print(name).print('=').print('"').print(value).print('"');
+        private void printAttribute(final Printer printer, final String name, final String value) {
+            printer.print(' ').print(name).print('=').print('"').print(value).print('"');
+        }
     }
 }

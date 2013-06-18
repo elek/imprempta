@@ -2,14 +2,12 @@ package net.anzix.imprempta.impl;
 
 import com.google.common.io.Files;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import net.anzix.imprempta.api.*;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,8 +87,12 @@ public class YamlHeaderContentParser implements ContentParser {
                 }
                 lineno++;
                 Yaml yaml = new Yaml();
+
+                //save parsed attributes
                 Map<String, Object> map = (Map<String, Object>) yaml.load(sb.toString());
-                c.setMetaHolder(map);
+                for (String key : map.keySet()) {
+                    c.put(key, map.get(key));
+                }
             }
             while (lineno < lines.size()) {
                 content.append(lines.get(lineno) + "\n");

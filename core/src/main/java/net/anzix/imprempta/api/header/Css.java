@@ -12,7 +12,24 @@ public class Css implements HeaderExtension {
     }
 
     @Override
-    public String render() {
-        return "<link rel=\"stylesheet\" href=\"" + url + "\"></link>";
+    public String render(String rootUrl) {
+        return "<link rel=\"stylesheet\" href=\"" + rootUrl + url + "\"></link>";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Css css = (Css) o;
+
+        if (url != null ? !url.equals(css.url) : css.url != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return url != null ? url.hashCode() : 0;
     }
 }

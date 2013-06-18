@@ -1,6 +1,7 @@
 package net.anzix.imprempta.impl;
 
 import net.anzix.imprempta.api.SyntaxHighlighter;
+import net.anzix.imprempta.api.TextContent;
 import prettify.PrettifyParser;
 import prettify.theme.ThemeDefault;
 import syntaxhighlight.ParseResult;
@@ -25,7 +26,7 @@ public class HTMLSyntaxHighlighter implements SyntaxHighlighter {
 
 
     @Override
-    public String highlight(String form, String content) {
+    public String highlight(String form, String content, TextContent context) {
         List<ParseResult> results = parser.parse("java", content);
         int pos = 0;
         StringBuilder b = new StringBuilder();

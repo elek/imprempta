@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Base class represents all the site data with the data.
  */
-public class Site {
+public class Site extends HashMap<String,Object> {
 
     private List<Content> contents = new ArrayList<Content>();
 
@@ -22,8 +22,6 @@ public class Site {
     private SimpleDateFormat defaultDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
     private String sourceDir;
-
-    private List<HeaderExtension> headerExtensions = new ArrayList<>();
 
     @Inject
     public Site(@Named("sourcedir") String sourceDir) {
@@ -95,19 +93,5 @@ public class Site {
         this.sourceDir = sourceDir;
     }
 
-    public void addHeaderExtension(HeaderExtension ext) {
-        headerExtensions.add(ext);
-    }
 
-    public List<HeaderExtension> getHeaderExtensions() {
-        return headerExtensions;
-    }
-
-    public String getHeaderExtension() {
-        StringBuilder b = new StringBuilder();
-        for (HeaderExtension hex : headerExtensions) {
-            b.append("   " + hex.render() + "\n");
-        }
-        return b.toString();
-    }
 }

@@ -113,6 +113,17 @@ public class ExtensionManager {
             //TODO
         }
 
+        public void after(Class type) {
+            if (iface == null) {
+                iface = detectIface(implementation);
+            }
+            if (iface == null) {
+                throw new GeneratorException("Please set the type of an extension with use(ClassName.class).as(ExtensionType.class)...");
+            }
+            ExtensionChain chain = extensions.get(iface);
+            chain.addAdter(type, implementation, role, selector);
+        }
+
         public Usage as(Class iface) {
             this.iface = iface;
             return this;

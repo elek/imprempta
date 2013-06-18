@@ -70,11 +70,13 @@ public class GuiceConfig extends AbstractModule {
         ext.use(new JekyllDateParser()).forContent(prop("class", "post"));
         ext.use(new ShortUrlTransformer()).forContent(prop("class", "post"));
         ext.use(SyntaxTransformer.class).withRole("syntax");
+        ext.use(ContentClassifier.class);
         ext.use(TemplateContentTransformer.class).withRole("template").forContent(not(prop("class", "template")));
         ext.use(TemplateContentTransformer.class).forContent(prop("class", "template"));
         ext.use(TemplateLayoutTransformer.class).withRole("layout");
 
         ext.use(HandlebarsTemplateLanguage.class).withRole("default");
+        //ext.use(FreemarkerTemplateLanguage.class).withRole("default");
 
         ext.use(PegdownSyntax.class).withRole("md");
         ext.use(PegdownSyntax.class).withRole("markdown");
@@ -116,30 +118,22 @@ public class GuiceConfig extends AbstractModule {
                 });
             }
         });
+
+        //extend the config with scripts.
         ext.closeUsage();
         readConfig();
         ext.closeUsage();
 
-        //for (Class iface : extensions.keySet()) {
-        //LOG.debug("Binding extension " + iface);
-        //bind(ExtensionChain.class).annotatedWith(new TypeImpl(iface)).toInstance(extensions.get(iface));
-        //}
         bind(ExtensionManager.class).toInstance(ext);
         bind(GuiceConfig.class).toInstance(this);
-
-
     }
-
-//    public <T> Class<ExtensionChain<T>> g(Class<T> type){
-//        return (Class<ExtensionChain<T>>) ExtensionChain<T>.class;
-//    }
-
 
     void readConfig() {
         File config = new File(new File(rootdir), "imprempta.groovy");
         if (config.exists()) {
             Binding binding = new Binding();
             binding.setVariable("binder", this);
+            binding.setVariable("ext", ext);
 
             CompilerConfiguration conf = new CompilerConfiguration();
             conf.setVerbose(true);

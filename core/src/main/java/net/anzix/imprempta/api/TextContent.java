@@ -1,7 +1,9 @@
 package net.anzix.imprempta.api;
 
+import net.anzix.imprempta.api.header.HeaderExtension;
+
 import java.nio.file.Paths;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Text content, sould be transformed for output.
@@ -9,6 +11,8 @@ import java.util.Scanner;
 public class TextContent extends Content {
 
     private String content = "";
+
+    private Set<HeaderExtension> headerExtensions = new HashSet<>();
 
     public void setContent(String content) {
         this.content = content;
@@ -25,5 +29,19 @@ public class TextContent extends Content {
         return c;
     }
 
+    public void addHeaderExtension(HeaderExtension ext) {
+        headerExtensions.add(ext);
+    }
 
+    public List<HeaderExtension> getHeaderExtensions() {
+        return new ArrayList(headerExtensions);
+    }
+
+    public String getHeaderExtension() {
+        StringBuilder b = new StringBuilder();
+        for (HeaderExtension hex : headerExtensions) {
+            b.append("   " + hex.render(getRootUrl()) + "\n");
+        }
+        return b.toString();
+    }
 }

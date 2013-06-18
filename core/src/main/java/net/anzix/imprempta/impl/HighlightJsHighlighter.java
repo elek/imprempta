@@ -23,13 +23,9 @@ public class HighlightJsHighlighter implements SyntaxHighlighter {
     private String style = "default";
 
     @Override
-    public String highlight(String format, String content) {
+    public String highlight(String format, String content, TextContent context) {
         //TODO create some kind of hooks for the first time initialization.
         if (firstTime) {
-            //TODO remove template specific root from here
-            site.addHeaderExtension(new Css("{{ page.rootUrl }}styles/" + style + ".css"));
-            site.addHeaderExtension(new Js("{{ page.rootUrl }}js/highlight.pack.js"));
-            site.addHeaderExtension(new ScriptContent("hljs.initHighlightingOnLoad();"));
             TextContent tc;
 
             tc = TextContent.fromResource("/highlight.pack.js", "js/highlight.pack.js");
@@ -40,6 +36,12 @@ public class HighlightJsHighlighter implements SyntaxHighlighter {
 
             firstTime = false;
         }
+
+        //TODO remove template specific root from here
+        context.addHeaderExtension(new Css("styles/" + style + ".css"));
+        context.addHeaderExtension(new Js("js/highlight.pack.js"));
+        context.addHeaderExtension(new ScriptContent("hljs.initHighlightingOnLoad();"));
+
         return content;
     }
 

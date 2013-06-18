@@ -11,7 +11,6 @@ public class ConfigurationTest {
     }
 
     private void run() {
-        Configuration c = new Configuration();
 
         Binding binding = new Binding();
         binding.setVariable("binder", this);

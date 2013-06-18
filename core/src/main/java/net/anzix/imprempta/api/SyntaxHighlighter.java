@@ -5,6 +5,6 @@ package net.anzix.imprempta.api;
  */
 public interface SyntaxHighlighter {
 
-    public String highlight(String format, String content);
+    public String highlight(String format, String content, TextContent context);
 
 }

@@ -1,6 +1,7 @@
 package net.anzix.imprempta.api;
 
 import com.google.common.io.Files;
+import net.anzix.imprempta.api.header.HeaderExtension;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -9,32 +10,34 @@ import java.util.*;
 /**
  * Class represents one static page with a content a metadata.
  */
-public abstract class Content {
+public abstract class Content extends HashMap<String, Object> {
 
     /**
      * Files which are source of this generated page.
      */
     private List<File> sourceFiles = new ArrayList<>();
 
-    private Map<String, Object> metadaata = new HashMap<>();
-
     private Path source;
     private Object metadata;
 
+    @Deprecated
     public Object getMeta(String key) {
-        return metadaata.get(key);
+        return get(key);
     }
 
+    @Deprecated
     public Object getMeta(Header key) {
-        return metadaata.get(key.toString().toLowerCase());
+        return get(key.toString().toLowerCase());
     }
 
+    @Deprecated
     public void setMeta(String key, Object o) {
-        metadaata.put(key, o);
+        put(key, o);
     }
 
+    @Deprecated
     public void setMeta(Header key, Object o) {
-        metadaata.put(key.toString().toLowerCase(), o);
+        put(key.toString().toLowerCase(), o);
     }
 
     public void setSource(Path source) {
@@ -49,16 +52,19 @@ public abstract class Content {
         return source;
     }
 
+    @Deprecated
     public void delMeta(String layout) {
-        metadaata.remove(layout);
+        remove(layout);
     }
 
+    @Deprecated
     public Collection<String> getMetaKeys() {
-        return metadaata.keySet();
+        return keySet();
     }
 
+    @Deprecated
     public Map<String, Object> getMetadata() {
-        return metadaata;
+        return this;
     }
 
 
@@ -96,12 +102,15 @@ public abstract class Content {
         return ext != null && (ext.equals("css") || ext.equals("js"));
     }
 
-    public void setMetaHolder(Map<String, Object> metaHolder) {
-        this.metadaata = metaHolder;
-    }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + source + ']';
     }
+
+    public Object get(Header header) {
+        return get(header.name().toLowerCase());
+    }
+
+
 }
