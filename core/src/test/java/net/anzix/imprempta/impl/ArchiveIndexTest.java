@@ -23,8 +23,8 @@ public class ArchiveIndexTest {
 
         index.transform(c);
 
-        Map<String, Map<Integer, Map<Integer, Content>>> ix = (Map<String, Map<Integer, Map<Integer, Content>>>) site.get("archive");
-        Assert.assertEquals(c, ix.get("test").get(2013).get(5));
+        Map<String, Map<String, Map<String, Content>>> ix = (Map<String, Map<String, Map<String, Content>>>) site.get("archive");
+        Assert.assertEquals(c, ix.get("test").get("2013").get("5"));
 
 
     }

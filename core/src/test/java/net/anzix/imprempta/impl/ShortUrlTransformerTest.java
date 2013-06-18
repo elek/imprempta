@@ -15,10 +15,10 @@ public class ShortUrlTransformerTest {
     public void testTransform() throws Exception {
         TextContent c = new TextContent();
         c.setSource(Paths.get("_post/test.md"));
-        c.setMeta(Header.DATE, SDF.parse("2012-05-31"));
+        c.put(Header.DATE, SDF.parse("2012-05-31"));
         ShortUrlTransformer transformer = new ShortUrlTransformer();
         transformer.transform(c);
-        Assert.assertEquals(Paths.get("2012/05/31/test/index.html"), c.getSource());
+        Assert.assertEquals(Paths.get("2012/05/31/test/index.md"), c.getSource());
 
 
     }

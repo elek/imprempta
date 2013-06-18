@@ -1,6 +1,6 @@
 ---
 title:  test
-layout: layout
+layout: default
 ---
 # Valami
 

@@ -40,6 +40,9 @@ public class YamlHeaderContentParser implements ContentParser {
     public YamlHeaderContentParser(Path rootDir) {
         this.rootDir = rootDir;
         this.ext = new ExtensionManager();
+        ext.use(PegdownSyntax.class).withRole("md");
+        ext.use(PegdownSyntax.class).withRole("markdown");
+        ext.use(SimpleSyntax.class).withRole("html");
     }
 
     @Override
