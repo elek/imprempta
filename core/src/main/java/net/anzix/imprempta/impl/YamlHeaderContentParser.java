@@ -102,7 +102,7 @@ public class YamlHeaderContentParser implements ContentParser {
                 lineno++;
             }
             c.setContent(content.toString());
-            c.setSource(rootDir.relativize(file));
+            c.setSource(rootDir.toAbsolutePath().relativize(file.toAbsolutePath()));
         } catch (IOException e) {
             throw new GeneratorException("Can't open file: " + file.toAbsolutePath().toString(), e);
         }
