@@ -41,9 +41,9 @@ public abstract class Content extends HashMap<String, Object> {
 
     public void setSource(Path source) {
         this.source = source;
-        setMeta(Header.TYPE, Files.getFileExtension(source.getFileName().toString().toLowerCase()));
-        setMeta(Header.NAME, Files.getNameWithoutExtension(source.getFileName().toString()));
-        setMeta(Header.PARENT, source.getParent());
+        put(Header.TYPE, Files.getFileExtension(source.getFileName().toString().toLowerCase()));
+        put(Header.NAME, Files.getNameWithoutExtension(source.getFileName().toString()));
+        put(Header.PARENT, source.getParent());
 
     }
 
@@ -68,8 +68,8 @@ public abstract class Content extends HashMap<String, Object> {
 
 
     public String getUrl() {
-        Path p = (Path) getMeta(Header.PARENT);
-        String name = getMeta(Header.NAME) + "." + getMeta(Header.TYPE);
+        Path p = (Path) get(Header.PARENT);
+        String name = get(Header.NAME) + "." + get(Header.TYPE);
         if (p != null) {
             return p.resolve(name).toString().replace('\\', '/');
         } else {

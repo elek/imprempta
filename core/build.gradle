@@ -3,6 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'application'
 
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 mainClassName = 'net.anzix.imprempta.Start'
