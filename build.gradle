@@ -3,7 +3,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-      classpath fileTree(dir: 'c:/tmp/sp/gradle-gitsemver/build/libs', includes: ['gradle-gitsemver-0.1.3.jar'])
+    //      classpath fileTree(dir: '../gradle-gitsemver/build/libs', includes: ['gradle-gitsemver-0.1.3.jar'])
       classpath 'com.palantir:gradle-gitsemver:0.1.2'
   }
 
@@ -38,7 +38,6 @@ allprojects {
             authentication(userName: 'anzix', password: repopwd)
         }
         configuration = configurations.deployerJars
-        snapshotRepository(url: "dav:https://repository-anzix.forge.cloudbees.com/snapshot/", configureAuth)
         repository(url: "dav:https://repository-anzix.forge.cloudbees.com/release/", configureAuth)
      }
   }
