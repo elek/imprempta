@@ -1,7 +1,7 @@
 buildscript {
   repositories {
     mavenCentral()
-    maven { url 'http://repository-anzix.forge.cloudbees.com/snapshot/'}
+    maven { url 'http://zx.anzix.net/repo/'}
   }
   dependencies {
       classpath 'net.anzix.fork:semver-gitflow-gradle:0.2.2-SNAPSHOT'
@@ -11,36 +11,20 @@ buildscript {
 
 apply plugin: 'semver-gitflow'
 
+
 allprojects { 
   repositories { 
     mavenCentral()
     maven {
-       url "https://repository-anzix.forge.cloudbees.com/release/"
+       url "https://zx.anzix.net/repo/"
     }
+    maven { url "http://repository-anzix.forge.cloudbees.com/release" }
   }
   version = gitSemVersion
   group = 'net.anzix.imprempta'
 
-  configurations {
-    deployerJars
-  }
-
   apply plugin: "maven"
-
  
-  dependencies {
-    deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
-  }
- 
-  uploadArchives {
-     repositories.mavenDeployer {
-        def configureAuth = {
-            authentication(userName: 'anzix', password: repopwd)
-        }
-        configuration = configurations.deployerJars
-        repository(url: "dav:https://repository-anzix.forge.cloudbees.com/release/", configureAuth)
-     }
-  }
 
 }
 

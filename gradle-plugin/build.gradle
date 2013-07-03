@@ -1,5 +1,5 @@
 apply plugin: 'groovy'
-
+apply plugin: 'maven-publish'
 
 dependencies {
     compile project(':core')
@@ -8,5 +8,20 @@ dependencies {
 
 }
 
+if (!project.hasProperty("repoDir")) {
+   project.ext.repoDir = new File(project.rootProject.buildDir, "/repo").getAbsolutePath()
+}
 
 
+publishing {
+   publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+   }
+   repositories {
+      maven {
+         url "file://$repoDir"
+      }
+   }
+}
